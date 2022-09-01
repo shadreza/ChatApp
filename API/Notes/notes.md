@@ -119,7 +119,7 @@ for a id parameterized get function we may do the bellow
 
     [HttpGet("{id}")]
     // /api/appusers/2
-    
+
     public async Task<ActionResult<AppUser>> GetAppUser(int id)
     {
         return await _context.AppUsers.FindAsync(id);
@@ -128,3 +128,26 @@ for a id parameterized get function we may do the bellow
 Till this the api has got a basic skeleton
 
 ---
+
+# lets fix the CORS issue
+
+for the time being we will be allowing the localhost 4200 port to be allowed to the CORS policy and the origin issue will be solved for that port only
+
+in **startup.cs** cls we need to add a service that will be solving the case
+for that we must do a few things
+
+add the Cors to the service in the **ConfigureServices** method
+services.AddCors();
+
+here in this method we don't need to look at the ordering of the services
+
+but here in the **Configure** the ordering is strictly maintained
+So the CORS need to be placed in a specific part
+It should be **after the app.UseRouting and app.UseEndpoints** but in the future there will be Authorization so this must be prior to that
+So **placing after app.UseRouting** we set
+
+    app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:4200"));
+
+if the url was set to **http://localhost:4200/** then that was not working so keep these things in concerns
+
+This means the policy will be allowing headers [the future authorization and authentication] for any methods [get, post, delete, etc] from the origin of localhost 4200 port
